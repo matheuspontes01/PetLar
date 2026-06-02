@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Pet | PetLar{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+	<div class="col-12 col-md-8 col-lg-6">
+		<div class="petlar-card p-4 p-md-5">
+			<h1 class="h4 font-weight-bold text-danger mb-3">Confirmar exclusão</h1>
+			<p class="mb-4">
+				Tem certeza que deseja remover o pet <strong>{{ object.nome }}</strong>?
+				Esta ação não poderá ser desfeita.
+			</p>
+
+			<form method="post" class="form-actions">
+				{% csrf_token %}
+				<a href="{% url 'listar_pets' %}" class="btn btn-light border">Cancelar</a>
+				<button type="submit" class="btn btn-danger">Excluir pet</button>
+			</form>
+		</div>
+	</div>
+</section>
+{% endblock %}

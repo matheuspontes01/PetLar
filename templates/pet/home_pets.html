@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Adoção | PetLar{% endblock %}
+
+{% block content %}
+
+<section class="adocao-hero petlar-card mb-4 overflow-hidden">
+	<div class="row g-0 align-items-stretch">
+		<div class="col-12 col-xl-7 p-4 p-md-5 adocao-hero-copy">
+			<span class="hero-kicker mb-3 d-inline-flex align-items-center gap-2">
+				<span class="hero-kicker-dot"></span>
+				Pets disponíveis para adoção
+			</span>
+			<h1 class="display-4 font-weight-bold mb-3">Encontre um novo amigo para a sua casa.</h1>
+			<p class="lead text-muted mb-4">
+				Veja os pets cadastrados, descubra os detalhes e fale com o responsável pelo WhatsApp em poucos cliques.
+			</p>
+			<div class="hero-stats">
+				<div class="hero-stat">
+					<strong>{{ pets|length }}</strong>
+					<span>pets prontos para adoção</span>
+				</div>
+				<div class="hero-stat">
+					<strong>Contato direto</strong>
+					<span>via WhatsApp do responsável</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-xl-5 p-4 p-md-5 adocao-hero-panel">
+			<form method="get" class="adocao-search p-4">
+				<label class="form-label font-weight-semibold mb-2">Buscar pet</label>
+				<div class="input-group input-group-lg">
+					<input type="text" class="form-control" name="pesquisa" value="{{ request.GET.pesquisa }}" placeholder="Nome do pet">
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-primary">Buscar</button>
+					</div>
+				</div>
+				<p class="text-muted small mt-3 mb-0">Clique em um card para ver mais informações e iniciar o contato.</p>
+			</form>
+		</div>
+	</div>
+</section>
+
+<section class="pet-list-layout">
+	{% for pet in pets %}
+		<div class="pet-list-item">
+			<a href="{% url 'detalhe_pet' pet.pk %}" class="pet-card-link text-decoration-none">
+				<article class="petlar-card pet-card-row overflow-hidden">
+					<div class="pet-card-media">
+						<img src="{{ pet.fotos.url }}" alt="{{ pet.nome }}" class="pet-card-image">
+						<div class="pet-card-overlay">
+							<span class="badge badge-light badge-pill">{{ pet.get_status_display }}</span>
+						</div>
+					</div>
+					<div class="pet-card-copy">
+						<div class="pet-card-copy-main p-4">
+							<div class="pet-card-copy-head">
+								<div>
+									<h2 class="h4 mb-1 text-dark">{{ pet.nome }}</h2>
+									<p class="text-muted mb-0">{{ pet.especie }} · {{ pet.raca }}</p>
+								</div>
+								<span class="pet-age-pill">{{ pet.idade_formatada }}</span>
+							</div>
+
+							<div class="d-flex flex-wrap gap-2 mt-3 mb-3">
+								<span class="badge badge-soft">{{ pet.get_sexo_display }}</span>
+								<span class="badge badge-soft">{{ pet.get_porte_display }}</span>
+							</div>
+
+							<p class="text-muted mb-0 pet-card-description">{{ pet.descricao|truncatechars:130 }}</p>
+						</div>
+						<div class="pet-card-copy-aside p-4">
+							<span class="btn btn-warning w-100 pet-card-action">Ver detalhes</span>
+							<p class="text-muted small mb-0 mt-3">Clique para ver fotos e contato</p>
+						</div>
+					</div>
+				</article>
+			</a>
+		</div>
+	{% empty %}
+		<div class="pet-list-item">
+			<div class="petlar-card empty-state p-5 text-center">
+				<div class="empty-state-icon mb-3" aria-hidden="true">PetLar</div>
+				<h2 class="h4 mb-2">Nenhum pet disponível no momento</h2>
+				<p class="text-muted mb-0">Assim que houver novos pets cadastrados, eles aparecerão aqui.</p>
+			</div>
+		</div>
+	{% endfor %}
+
+</section>
+{% endblock %}

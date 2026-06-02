@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ pet.nome }} | PetLar{% endblock %}
+
+{% block content %}
+<section class="pet-detail-shell">
+	<div class="pet-detail-main petlar-card overflow-hidden">
+		<div class="pet-detail-media">
+			<img src="{{ pet.fotos.url }}" alt="{{ pet.nome }}" class="pet-detail-image">
+			<div class="pet-detail-media-gradient"></div>
+			<div class="pet-detail-media-label">
+				<span class="badge badge-dark badge-pill">Pet disponível para adoção</span>
+			</div>
+		</div>
+		<div class="p-4 p-md-5 pet-detail-content">
+			<div class="pet-detail-topline d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+				<div>
+					<p class="text-uppercase text-muted small mb-1">Perfil do pet</p>
+					<h1 class="display-4 font-weight-bold mb-0">{{ pet.nome }}</h1>
+					<p class="text-muted fs-5 mb-0 mt-2">{{ pet.especie }} · {{ pet.raca }}</p>
+				</div>
+				<a href="{% url 'home_pets' %}" class="btn btn-outline-secondary btn-sm">Voltar</a>
+			</div>
+
+			<div class="d-flex flex-wrap gap-2 mb-4">
+				<span class="badge badge-soft">{{ pet.get_sexo_display }}</span>
+				<span class="badge badge-soft">{{ pet.get_porte_display }}</span>
+				<span class="badge badge-soft">{{ pet.idade_formatada }}</span>
+				<span class="badge badge-success-soft">{{ pet.get_status_display }}</span>
+			</div>
+
+			<div class="pet-detail-stack mb-4">
+				<div class="pet-detail-text">
+					<h2 class="h5 font-weight-bold mb-3">Sobre o pet</h2>
+					<p class="fs-5 lh-base mb-0">{{ pet.descricao }}</p>
+				</div>
+
+				<div class="detail-info-grid">
+					<div class="detail-info-card">
+						<span class="text-muted small d-block">Vacinado</span>
+						<strong>{% if pet.vacinado %}Sim{% else %}Não{% endif %}</strong>
+					</div>
+					<div class="detail-info-card">
+						<span class="text-muted small d-block">Castrado</span>
+						<strong>{% if pet.castrado %}Sim{% else %}Não{% endif %}</strong>
+					</div>
+					<div class="detail-info-card">
+						<span class="text-muted small d-block">Responsável</span>
+						<strong>{{ pet.responsavel.nome|default:'Não informado' }}</strong>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<aside class="pet-detail-sidebar petlar-card p-4 p-md-4">
+		<div class="contact-panel mb-4">
+			<div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+				<div>
+					<p class="text-uppercase text-muted small mb-1">Contato</p>
+					<h2 class="h5 font-weight-bold mb-0">Fale com o responsável</h2>
+				</div>
+				<span class="contact-badge">WhatsApp</span>
+			</div>
+
+			{% if pet.whatsapp_url %}
+				<a href="{{ pet.whatsapp_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg w-100">Mandar mensagem</a>
+			{% else %}
+				<button class="btn btn-success btn-lg w-100" type="button" disabled>WhatsApp indisponível</button>
+				<p class="text-muted small mt-3 mb-0">Este pet ainda não possui telefone cadastrado no responsável.</p>
+			{% endif %}
+		</div>
+
+		<div class="detail-info-card mb-3">
+			<span class="text-muted small d-block mb-1">Resumo</span>
+			<p class="mb-0">{{ pet.especie }} · {{ pet.raca }} · {{ pet.idade_formatada }}</p>
+		</div>
+
+		<div class="detail-info-card">
+			<span class="text-muted small d-block mb-1">Status</span>
+			<p class="mb-0">{{ pet.get_status_display }}</p>
+		</div>
+	</aside>
+</section>
+{% endblock %}

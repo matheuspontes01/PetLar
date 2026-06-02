@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	{% load static %}
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}PetLar{% endblock %}</title>
+	<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+	<link href="{% static 'css/petlar.css' %}" rel="stylesheet">
+	{% block extra_css %}{% endblock %}
+</head>
+<body>
+	{% if user.is_authenticated %}
+	<nav class="navbar navbar-expand-lg navbar-light petlar-topbar">
+		<div class="container">
+			<a class="navbar-brand petlar-brand" href="{% url 'home_pets' %}">
+				<span class="petlar-brand-mark">Pet</span><span class="petlar-brand-accent">Lar</span>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#petlarNav" aria-controls="petlarNav" aria-expanded="false" aria-label="Abrir navegação">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="petlarNav">
+				<form class="petlar-search my-3 my-lg-0 mx-lg-4" action="{% url 'home_pets' %}" method="get">
+					<input type="text" class="form-control" name="pesquisa" value="{{ request.GET.pesquisa }}" placeholder="Buscar pets para adoção" aria-label="Buscar pets">
+					<button type="submit" class="btn btn-link">Buscar</button>
+				</form>
+
+				<ul class="navbar-nav ml-auto align-items-lg-center">
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'home_pets' %}">Adoção</a>
+					</li>
+					{% if can_manage_pets %}
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'listar_pets' %}">Pets</a>
+						</li>
+					{% endif %}
+					{% if is_admin_profile %}
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'listar_usuarios' %}">Usuários</a>
+						</li>
+					{% endif %}
+					{% if perfil_usuario %}
+						<li class="nav-item d-none d-lg-block">
+							<span class="petlar-user-pill" title="{{ perfil_usuario.nome }}">{{ perfil_usuario.nome }}</span>
+						</li>
+					{% endif %}
+					<li class="nav-item ml-lg-2">
+						<a class="btn btn-outline-secondary btn-sm" href="{% url 'logout' %}">Sair</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	{% endif %}
+
+	<main class="container py-4 py-md-5">
+		{% if perfil_usuario.tipo_usuario == 'ONG' and perfil_usuario.status_verificacao_ong == 'PENDENTE' %}
+			<div class="alert alert-warning" role="alert">
+				Seu cadastro de ONG está em análise. Assim que for aprovado, a opção de cadastrar pets ficará disponível.
+			</div>
+		{% elif perfil_usuario.tipo_usuario == 'ONG' and perfil_usuario.status_verificacao_ong == 'REJEITADA' %}
+			<div class="alert alert-danger" role="alert">
+				Seu cadastro de ONG não foi aprovado. Revise seus dados ou entre em contato com a administração do PetLar.
+			</div>
+		{% endif %}
+		{% block content %}{% endblock %}
+	</main>
+
+	<script src="{% static 'js/jquery.js' %}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+	<script src="{% static 'js/bootstrap.min.js' %}"></script>
+	{% block extra_js %}{% endblock %}
+</body>
+</html>

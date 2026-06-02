@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Pets | PetLar{% endblock %}
+
+{% block content %}
+<section class="page-heading d-md-flex align-items-md-center justify-content-between mb-4">
+	<div>
+		<h1 class="h3 font-weight-bold mb-1">{% if is_admin_profile %}Gerenciamento de pets{% else %}Meus pets para adoção{% endif %}</h1>
+		<p class="text-muted mb-0">{% if is_admin_profile %}Cadastre, consulte, edite e remova pets disponíveis na plataforma.{% else %}Cadastre e acompanhe os pets da sua ONG disponíveis para adoção.{% endif %}</p>
+	</div>
+	<a href="{% url 'criar_pet' %}" class="btn btn-primary mt-3 mt-md-0">Novo pet</a>
+</section>
+
+<section class="petlar-card p-3 p-md-4 mb-4">
+	<form method="get" class="row g-2">
+		<div class="col-12 col-md-9">
+			<input type="text" class="form-control" name="pesquisa" value="{{ request.GET.pesquisa }}" placeholder="Buscar por nome">
+		</div>
+		<div class="col-12 col-md-3 d-grid">
+			<button type="submit" class="btn btn-outline-primary">Pesquisar</button>
+		</div>
+	</form>
+</section>
+
+<section class="petlar-card p-0 overflow-hidden">
+	<div class="table-responsive">
+		<table class="table table-hover align-middle mb-0">
+			<thead class="table-light">
+				<tr>
+					<th>Nome</th>
+					<th>Espécie</th>
+					<th>Raça</th>
+					<th>Idade</th>
+					<th>Status</th>
+					<th class="text-end">Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for pet in pets %}
+				<tr>
+					<td class="font-weight-semibold">{{ pet.nome }}</td>
+					<td>{{ pet.especie }}</td>
+					<td>{{ pet.raca }}</td>
+					<td>{{ pet.idade_formatada }}</td>
+					<td><span class="badge badge-success-soft">{{ pet.get_status_display }}</span></td>
+					<td class="text-end">
+						<a href="{% url 'editar_pet' pet.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+						<a href="{% url 'deletar_pet' pet.pk %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="6" class="text-center py-4 text-muted">Nenhum pet encontrado.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+{% endblock %}
