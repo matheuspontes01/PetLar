@@ -34,8 +34,8 @@
 				<form method="post" action="{% url 'login' %}">
 					{% csrf_token %}
 					<div class="mb-3">
-						<label for="email" class="form-label font-weight-semibold">E-mail</label>
-						<input type="email" class="form-control" id="email" name="email" placeholder="voce@email.com" required>
+						<label for="usuario" class="form-label font-weight-semibold">Usuário ou e-mail</label>
+						<input type="text" class="form-control" id="usuario" name="usuario" placeholder="Digite seu usuário ou e-mail" value="{{ request.POST.usuario|default:'' }}" autocomplete="username" required>
 					</div>
 					<div class="mb-4">
 						<label for="senha" class="form-label font-weight-semibold">Senha</label>

@@ -3,13 +3,19 @@ from django.shortcuts import redirect
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.contrib.auth import login
 from django.contrib.auth.models import User as AuthUser
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 
+from user.consts import *
 from user.models import User
 from user.forms import FormularioUser
+from user.serializers import SerializadorUser
 from PetLar.mixins import AdminRequiredMixin
 
 # Create your views here.
 class ListarUsuarios(AdminRequiredMixin, ListView):
+    # view para listar usuários cadastrados
     model = User
     template_name = 'user/listar_usuarios.html'
     context_object_name = 'usuarios'
@@ -23,6 +29,7 @@ class ListarUsuarios(AdminRequiredMixin, ListView):
     
 
 class CriarUsuario(AdminRequiredMixin, CreateView):
+    # view para criar um novo usuário
     model = User
     form_class = FormularioUser
     template_name = 'user/novo_usuario.html'
@@ -40,6 +47,7 @@ class CriarUsuario(AdminRequiredMixin, CreateView):
 
 
 class CadastroUsuario(CreateView):
+    # view para cadastro público de usuário
     model = User
     form_class = FormularioUser
     template_name = 'user/cadastro_usuario.html'
@@ -56,10 +64,10 @@ class CadastroUsuario(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        if form.cleaned_data.get('tipo_usuario') == User.TipoUsuario.ONG:
-            form.instance.status_verificacao_ong = User.StatusVerificacaoONG.PENDENTE
+        if form.cleaned_data.get('tipo_usuario') == TIPO_ONG:
+            form.instance.status_verificacao_ong = STATUS_ONG_PENDENTE
         else:
-            form.instance.status_verificacao_ong = User.StatusVerificacaoONG.NAO_SE_APLICA
+            form.instance.status_verificacao_ong = STATUS_ONG_NAO_SE_APLICA
         response = super().form_valid(form)
         email = self.object.email
         senha = form.cleaned_data.get('senha')
@@ -75,6 +83,7 @@ class CadastroUsuario(CreateView):
 
 
 class EditarUsuario(AdminRequiredMixin, UpdateView):
+    # view para editar um usuário existente
     model = User
     form_class = FormularioUser
     template_name = 'user/editar_usuario.html'
@@ -102,12 +111,24 @@ class EditarUsuario(AdminRequiredMixin, UpdateView):
 
 
 class DeletarUsuario(AdminRequiredMixin, DeleteView):
+    # view para deletar um usuário existente
     model = User
     template_name = 'user/deletar_usuario.html'
     success_url = reverse_lazy('listar_usuarios')
 
-    def delete(self, request, *args, **kwargs):
-        obj = self.get_object()
+    def form_valid(self, form):
         # delete corresponding auth user
-        AuthUser.objects.filter(username=obj.email).delete()
-        return super().delete(request, *args, **kwargs)
+        AuthUser.objects.filter(username=self.object.email).delete()
+        return super().form_valid(form)
+
+
+class APIListarUsuarios(ListAPIView):
+    # view para listar instâncias de usuários por meio de API REST
+    serializer_class = SerializadorUser
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return User.objects.all()
+        return User.objects.none()

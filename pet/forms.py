@@ -1,9 +1,10 @@
 from django import forms
 from django.forms import ModelForm
 from pet.models import Pet
+from user.consts import STATUS_ONG_APROVADA, TIPO_ONG
 from user.models import User
 
-class FormularioPet(forms.ModelForm):
+class FormularioPet(ModelForm):
     class Meta:
         model = Pet
         fields = ['nome', 'especie', 'fotos', 'raca', 'idade', 'sexo', 'porte', 'vacinado', 'castrado', 'descricao', 'status', 'responsavel']
@@ -24,13 +25,13 @@ class FormularioPet(forms.ModelForm):
         super().__init__(*args, **kwargs)
         responsavel_field = self.fields.get('responsavel')
 
-        if self.current_user and self.current_user.tipo_usuario == User.TipoUsuario.ONG:
+        if self.current_user and self.current_user.tipo_usuario == TIPO_ONG:
             self.fields.pop('responsavel')
         elif responsavel_field:
             responsavel_field.required = True
             responsavel_field.queryset = User.objects.filter(
-                tipo_usuario=User.TipoUsuario.ONG,
-                status_verificacao_ong=User.StatusVerificacaoONG.APROVADA,
+                tipo_usuario=TIPO_ONG,
+                status_verificacao_ong=STATUS_ONG_APROVADA,
             ).exclude(
                 telefone__isnull=True,
             ).exclude(

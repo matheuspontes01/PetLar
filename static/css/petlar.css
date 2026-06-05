@@ -61,6 +61,19 @@ body {
 	gap: 1rem;
 }
 
+.g-2 {
+	row-gap: 0.5rem;
+}
+
+.g-3 {
+	row-gap: 1rem;
+}
+
+.g-2 > [class*="col-"],
+.g-3 > [class*="col-"] {
+	margin-bottom: 0.5rem;
+}
+
 .d-grid {
 	display: grid;
 }

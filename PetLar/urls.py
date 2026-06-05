@@ -19,13 +19,15 @@ from django.urls import include, path
 from django.conf.urls.static import static
 
 from PetLar import settings
-from PetLar.views import Login, Logout
+from PetLar.views import LoginAPI, Login, Logout
 
 urlpatterns = [
     path('', Login.as_view(), name='login'),
     path('entrar/', Login.as_view(), name='entrar'),
     path('logout/', Logout.as_view(), name='logout'),
+    path('autenticacao-api/', LoginAPI.as_view(), name='autenticacao_api'),
     path('pets/', include('pet.urls')),
+    path('solicitacoes/', include('solicitacao.urls')),
     path('usuarios/', include('user.urls')),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

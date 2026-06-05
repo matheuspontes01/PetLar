@@ -30,6 +30,9 @@
 					<li class="nav-item">
 						<a class="nav-link" href="{% url 'home_pets' %}">Adoção</a>
 					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'listar_solicitacoes' %}">Solicitações</a>
+					</li>
 					{% if can_manage_pets %}
 						<li class="nav-item">
 							<a class="nav-link" href="{% url 'listar_pets' %}">Pets</a>

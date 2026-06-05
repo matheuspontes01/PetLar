@@ -1,12 +1,13 @@
 from django import forms
 from django.forms import ModelForm
+from user.consts import *
 from user.models import User
 
 
 class FormularioUser(ModelForm):
     TIPOS_SELECIONAVEIS = (
-        (User.TipoUsuario.ADOTANTE, User.TipoUsuario.ADOTANTE.label),
-        (User.TipoUsuario.ONG, User.TipoUsuario.ONG.label),
+        (TIPO_ADOTANTE, 'Adotante'),
+        (TIPO_ONG, 'ONG'),
     )
 
     class Meta:
@@ -39,11 +40,6 @@ class FormularioUser(ModelForm):
         super().__init__(*args, **kwargs)
         tipo_usuario_field = self.fields['tipo_usuario']
         tipo_usuario_field.choices = list(self.TIPOS_SELECIONAVEIS)
-
-        if self.instance and self.instance.pk and self.instance.tipo_usuario == User.TipoUsuario.ADMINISTRADOR:
-            tipo_usuario_field.choices = list(self.TIPOS_SELECIONAVEIS) + [
-                (User.TipoUsuario.ADMINISTRADOR, User.TipoUsuario.ADMINISTRADOR.label),
-            ]
 
         if not self.show_verification_status:
             self.fields.pop('status_verificacao_ong')
@@ -92,7 +88,7 @@ class FormularioUser(ModelForm):
         cleaned_data = super().clean()
         tipo_usuario = cleaned_data.get('tipo_usuario')
 
-        if tipo_usuario == User.TipoUsuario.ONG and self.require_ong_documents:
+        if tipo_usuario == TIPO_ONG and self.require_ong_documents:
             for field_name in ['razao_social_ong', 'cnpj_ong', 'comprovante_ong']:
                 if not cleaned_data.get(field_name):
                     self.add_error(field_name, 'Este campo é obrigatório para cadastro de ONG.')

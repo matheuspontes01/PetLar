@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if perfil_usuario.tipo_usuario == 'ADOTANTE' %}Cancelar Solicitação{% else %}Excluir Solicitação{% endif %} | PetLar{% endblock %}
+
+{% block content %}
+<form action="{% url 'deletar_solicitacao' object.pk %}" method="post">
+	{% csrf_token %}
+	<center>
+		<div class="alert alert-danger" role="alert">
+			{% if perfil_usuario.tipo_usuario == 'ADOTANTE' %}
+				<p>Tem certeza que deseja cancelar a solicitação de adoção do pet {{ object.pet.nome }}?</p>
+			{% else %}
+				<p>Tem certeza que deseja excluir a solicitação de adoção do pet {{ object.pet.nome }}?</p>
+			{% endif %}
+		</div>
+		<input type="submit" value="{% if perfil_usuario.tipo_usuario == 'ADOTANTE' %}Cancelar solicitação{% else %}Confirmar{% endif %}" class="btn btn-danger">
+		<a href="{% url 'listar_solicitacoes' %}" class="btn btn-outline-secondary">Cancelar</a>
+	</center>
+</form>
+
+{% endblock %}

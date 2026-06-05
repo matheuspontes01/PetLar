@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Avaliar solicitação | PetLar{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+	<div class="card-body p-4 p-lg-5">
+		<h1 class="h4 mb-4">Avaliar solicitação de {{ object.adotante.nome }}</h1>
+
+		<div class="border rounded p-3 bg-light mb-4">
+			<p class="mb-2"><strong>Pet:</strong> {{ object.pet.nome }}</p>
+			<p class="mb-2"><strong>Adotante:</strong> {{ object.adotante.nome }}</p>
+			<p class="mb-2"><strong>E-mail:</strong> {{ object.adotante.email }}</p>
+			<p class="mb-2"><strong>Telefone:</strong> {{ object.adotante.telefone|default:'Não informado' }}</p>
+			<p class="mb-0"><strong>Mensagem:</strong> {{ object.mensagem }}</p>
+		</div>
+
+		<form action="{% url 'editar_solicitacao' object.pk %}" method="post" class="row g-3">
+			{% csrf_token %}
+
+			<div class="col-12 col-md-6">
+				<label for="id_status" class="form-label">Status da solicitação</label>
+				{{ form.status }}
+			</div>
+
+			<div class="col-12 d-flex gap-2 mt-2">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+				<a href="{% url 'listar_solicitacoes' %}" class="btn btn-outline-secondary">Cancelar</a>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}

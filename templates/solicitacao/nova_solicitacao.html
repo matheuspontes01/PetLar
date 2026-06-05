@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Solicitar adoção | PetLar{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+	<div class="card-body p-4 p-lg-5">
+		<h1 class="h4 mb-4">Solicitar adoção de {{ pet.nome }}</h1>
+
+		<form action="{% url 'criar_solicitacao' pet.pk %}" method="post" class="row g-3">
+			{% csrf_token %}
+
+			<div class="col-12">
+				<label for="id_mensagem" class="form-label">Mensagem para o responsável</label>
+				{{ form.mensagem }}
+				{% if form.mensagem.help_text %}
+					<div class="form-text">{{ form.mensagem.help_text }}</div>
+				{% endif %}
+			</div>
+
+			<div class="col-12 d-flex gap-2 mt-2">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+				<a href="{% url 'detalhe_pet' pet.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}
