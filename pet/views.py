@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
@@ -12,6 +13,7 @@ from pet.models import Pet
 from pet.serializers import SerializadorPet
 from PetLar.mixins import PetManagerRequiredMixin
 from user.consts import TIPO_ONG
+from user.utils import get_custom_user_for_request
 
 # Create your views here.
 class HomePets(LoginRequiredMixin, ListView):
@@ -49,6 +51,20 @@ class DetalhePet(LoginRequiredMixin, DetailView):
     model = Pet
     template_name = 'pet/detalhe_pet.html'
     context_object_name = 'pet'
+
+    def get_queryset(self):
+        queryset = Pet.objects.select_related('responsavel')
+
+        if self.request.user.is_superuser:
+            return queryset
+
+        custom_user = get_custom_user_for_request(self.request)
+        filtros = Q(status='1')
+
+        if custom_user and custom_user.tipo_usuario == TIPO_ONG:
+            filtros = filtros | Q(responsavel=custom_user)
+
+        return queryset.filter(filtros)
     
 class CriarPet(PetManagerRequiredMixin, CreateView):
     # view para criar um novo pet

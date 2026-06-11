@@ -36,9 +36,7 @@ class CriarUsuario(AdminRequiredMixin, CreateView):
     success_url = reverse_lazy('listar_usuarios')
 
     def form_valid(self, form):
-        # save the custom user first
         response = super().form_valid(form)
-        # create corresponding Django auth user (use email as username)
         email = self.object.email
         senha = form.cleaned_data.get('senha')
         if not AuthUser.objects.filter(username=email).exists():
@@ -90,12 +88,10 @@ class EditarUsuario(AdminRequiredMixin, UpdateView):
     success_url = reverse_lazy('listar_usuarios')
 
     def form_valid(self, form):
-        # capture old email before save
         obj = self.get_object()
         old_email = obj.email
         senha = form.cleaned_data.get('senha')
         response = super().form_valid(form)
-        # update or create corresponding Django auth user
         new_email = self.object.email
         auth_user = AuthUser.objects.filter(username=old_email).first()
         if auth_user:
@@ -105,7 +101,6 @@ class EditarUsuario(AdminRequiredMixin, UpdateView):
                 auth_user.set_password(senha)
             auth_user.save()
         else:
-            # create if not exists
             AuthUser.objects.create_user(username=new_email, email=new_email, password=senha)
         return response
 
@@ -117,7 +112,6 @@ class DeletarUsuario(AdminRequiredMixin, DeleteView):
     success_url = reverse_lazy('listar_usuarios')
 
     def form_valid(self, form):
-        # delete corresponding auth user
         AuthUser.objects.filter(username=self.object.email).delete()
         return super().form_valid(form)
 

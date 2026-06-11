@@ -4,7 +4,9 @@ from pet.models import Pet
 from user.consts import STATUS_ONG_APROVADA, TIPO_ONG
 from user.models import User
 
+
 class FormularioPet(ModelForm):
+    # formulário para criar e editar pets
     class Meta:
         model = Pet
         fields = ['nome', 'especie', 'fotos', 'raca', 'idade', 'sexo', 'porte', 'vacinado', 'castrado', 'descricao', 'status', 'responsavel']

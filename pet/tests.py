@@ -108,6 +108,58 @@ class TestesViewListarPets(TestCase):
         self.assertEqual(len(response.context.get('pets')), 1)
 
 
+class TestesViewDetalhePet(TestCase):
+    # Classe de testes para a segurança da view DetalhePet
+
+    def setUp(self):
+        self.adotante = User.objects.create(
+            nome='Ana',
+            email='ana@petlar.com',
+            senha='12345',
+            telefone='63999999999',
+            tipo_usuario=TIPO_ADOTANTE,
+        )
+        self.auth_adotante = AuthUser.objects.create_user(username='ana@petlar.com', email='ana@petlar.com', password='12345')
+        self.ong = User.objects.create(
+            nome='ONG PetLar',
+            email='ong@petlar.com',
+            senha='12345',
+            telefone='63999999999',
+            tipo_usuario=TIPO_ONG,
+            status_verificacao_ong=STATUS_ONG_APROVADA,
+        )
+        self.auth_ong = AuthUser.objects.create_user(username='ong@petlar.com', email='ong@petlar.com', password='12345')
+        self.auth_admin = AuthUser.objects.create_superuser(username='admin', email='admin@petlar.com', password='12345')
+        self.pet_indisponivel = Pet.objects.create(
+            nome='Thor',
+            especie='Cão',
+            fotos=imagem_teste(),
+            raca='Vira-lata',
+            idade=12,
+            sexo='1',
+            porte='1',
+            descricao='Pet dócil',
+            status='3',
+            responsavel=self.ong,
+        )
+        self.url = reverse('detalhe_pet', kwargs={'pk': self.pet_indisponivel.pk})
+
+    def test_adotante_nao_acessa_pet_indisponivel(self):
+        self.client.force_login(self.auth_adotante)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_ong_responsavel_acessa_pet_indisponivel(self):
+        self.client.force_login(self.auth_ong)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_superuser_acessa_pet_indisponivel(self):
+        self.client.force_login(self.auth_admin)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+
+
 class TestesViewCriarPet(TestCase):
     # Classe de testes para a view CriarPet
 

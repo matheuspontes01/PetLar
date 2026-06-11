@@ -5,6 +5,7 @@ from solicitacao.models import SolicitacaoDeAdocao
 
 
 class FormularioSolicitacao(ModelForm):
+    # formulário para criar uma nova solicitação de adoção
     class Meta:
         model = SolicitacaoDeAdocao
         fields = ['mensagem']
@@ -25,6 +26,7 @@ class FormularioSolicitacao(ModelForm):
 
 
 class FormularioAvaliacaoSolicitacao(ModelForm):
+    # formulário para avaliar uma solicitação de adoção
     class Meta:
         model = SolicitacaoDeAdocao
         fields = ['status']

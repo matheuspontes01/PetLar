@@ -5,6 +5,7 @@ from user.models import User
 
 
 class FormularioUser(ModelForm):
+    # formulário para criar e editar usuários
     TIPOS_SELECIONAVEIS = (
         (TIPO_ADOTANTE, 'Adotante'),
         (TIPO_ONG, 'ONG'),

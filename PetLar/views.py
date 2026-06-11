@@ -26,29 +26,24 @@ class Login(View):
         if auth_user:
             username = auth_user.username
 
-        # Autenticando pelo nome de usuário ou pelo e-mail informado
         user = authenticate(request, username=username, password=senha)
 
         if user is None:
-            # Fallback: try to match the custom User model (password stored in 'senha')
             try:
                 custom = CustomUser.objects.get(email=usuario)
             except CustomUser.DoesNotExist:
                 custom = None
 
             if custom and custom.senha == senha:
-                # Ensure an AuthUser exists and has this password
                 auth_user, created = AuthUser.objects.get_or_create(username=custom.email, defaults={'email': custom.email})
                 if created:
                     auth_user.set_password(senha)
                     auth_user.save()
                 else:
-                    # if password doesn't match, update it to match custom (so authenticate works)
                     if not auth_user.check_password(senha):
                         auth_user.set_password(senha)
                         auth_user.save()
 
-                # Now authenticate again
                 user = authenticate(request, username=auth_user.username, password=senha)
 
         if user is not None:
