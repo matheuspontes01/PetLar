@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'pet.apps.PetConfig',
     'user.apps.UserConfig',
     'solicitacao.apps.SolicitacaoConfig',
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,7 +68,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'PetLar.context_processors.user_profile',
             ],
         },
     },
@@ -131,3 +132,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR
 
 LOGIN_URL = '/entrar/'
+
+CORS_ALLOW_ALL_ORIGINS = True

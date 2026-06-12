@@ -62,6 +62,9 @@ class FormularioUser(ModelForm):
             'class': 'form-control',
             'placeholder': 'Digite uma senha segura',
         })
+        if self.instance and self.instance.pk:
+            self.fields['senha'].required = False
+            self.fields['senha'].help_text = 'Preencha somente se desejar alterar a senha.'
 
     def clean_cnpj_ong(self):
         cnpj = self.cleaned_data.get('cnpj_ong')

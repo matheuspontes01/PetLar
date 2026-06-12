@@ -10,4 +10,6 @@ urlpatterns = [
     path('editar/<int:pk>/', EditarPet.as_view(), name='editar_pet'),
     path('deletar/<int:pk>/', DeletarPet.as_view(), name='deletar_pet'),
     path('api/listar/', APIListarPets.as_view(), name='api_listar_pets'),
+    path('api/gerenciar/', APIGerenciarPets.as_view(), name='api_gerenciar_pets'),
+    path('api/gerenciar/<int:pk>/', APIEditarPet.as_view(), name='api_editar_pet'),
 ]

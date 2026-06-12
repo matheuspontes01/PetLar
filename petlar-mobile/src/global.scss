@@ -1,0 +1,51 @@
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+body {
+  background: #f4f8f8;
+}
+
+.pagina-conteudo {
+  padding: 20px 16px 32px;
+}
+
+.cabecalho-lista {
+  margin-bottom: 18px;
+}
+
+.cabecalho-lista h2 {
+  margin: 0 0 6px;
+  color: #18343b;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.cabecalho-lista p {
+  margin: 0;
+  color: #667982;
+  line-height: 1.4;
+}
+
+.estado-vazio {
+  align-items: center;
+  color: #667982;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  min-height: 220px;
+  text-align: center;
+}
+
+.estado-vazio ion-icon {
+  color: #0d6b78;
+  font-size: 46px;
+}

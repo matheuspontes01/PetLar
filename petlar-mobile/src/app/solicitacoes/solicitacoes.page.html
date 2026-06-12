@@ -1,0 +1,116 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button class="toolbar-text-button" (click)="voltarPets()">
+        <ion-icon slot="start" name="paw-outline"></ion-icon>
+        Pets
+      </ion-button>
+    </ion-buttons>
+    <ion-title>PetLar Mobile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="toolbar-text-button" (click)="sair()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Sair
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="solicitacoes-page">
+  <ion-refresher slot="fixed" (ionRefresh)="atualizarLista($event)">
+    <ion-refresher-content pullingIcon="arrow-down" pullingText="Puxe para atualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="pagina-conteudo">
+    <section class="painel-home">
+      <p class="usuario-logado">{{ usuario.nome || usuario.email }} · {{ usuario.nome_tipo_usuario }}</p>
+      <h1>{{ tituloPainel() }}</h1>
+      <p>{{ descricaoPainel() }}</p>
+
+      <div class="atalhos-home">
+        <ion-button size="small" fill="outline" (click)="voltarPets()">
+          <ion-icon slot="start" name="paw-outline"></ion-icon>
+          Lista de pets
+        </ion-button>
+        <ion-button size="small" color="primary">
+          <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+          Solicitações
+        </ion-button>
+        <ion-button *ngIf="ehAdmin()" size="small" fill="outline" (click)="abrirUsuarios()">
+          <ion-icon slot="start" name="people-outline"></ion-icon>
+          Usuários
+        </ion-button>
+      </div>
+    </section>
+
+    <section class="cabecalho-lista">
+      <h2>{{ podeAvaliar() ? 'Pedidos recebidos' : 'Acompanhamento' }}</h2>
+      <p *ngIf="!carregandoLista">Veja as solicitacoes liberadas para seu usuario.</p>
+    </section>
+
+    <div *ngIf="carregandoLista" class="estado-vazio">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Carregando solicitacoes...</p>
+    </div>
+
+    <div *ngIf="!carregandoLista && solicitacoes.length === 0" class="estado-vazio">
+      <ion-icon name="clipboard-outline"></ion-icon>
+      <h3>Nenhuma solicitacao encontrada</h3>
+      <p>Quando houver solicitacoes, elas aparecerao aqui.</p>
+    </div>
+
+    <ion-card class="solicitacao-card" *ngFor="let solicitacao of solicitacoes">
+      <ion-card-header>
+        <ion-card-subtitle>{{ solicitacao.nome_status }}</ion-card-subtitle>
+        <ion-card-title>{{ solicitacao.nome_pet }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><strong>Adotante:</strong> {{ solicitacao.nome_adotante }}</p>
+        <p *ngIf="solicitacao.telefone_adotante"><strong>Telefone:</strong> {{ solicitacao.telefone_adotante }}</p>
+        <p class="mensagem">{{ solicitacao.mensagem }}</p>
+
+        <div class="solicitacao-actions">
+          <ion-button
+            *ngIf="ehAdotante() && solicitacao.status === 'PENDENTE'"
+            size="small"
+            color="danger"
+            fill="outline"
+            (click)="cancelarSolicitacao(solicitacao)"
+          >
+            Cancelar
+          </ion-button>
+
+          <ion-button
+            *ngIf="podeAvaliar() && solicitacao.status === 'PENDENTE'"
+            size="small"
+            color="success"
+            (click)="avaliarSolicitacao(solicitacao, 'APROVADA')"
+          >
+            Aprovar
+          </ion-button>
+
+          <ion-button
+            *ngIf="podeAvaliar() && solicitacao.status === 'PENDENTE'"
+            size="small"
+            color="danger"
+            fill="outline"
+            (click)="avaliarSolicitacao(solicitacao, 'REJEITADA')"
+          >
+            Rejeitar
+          </ion-button>
+
+          <ion-button
+            *ngIf="podeAvaliar()"
+            size="small"
+            color="danger"
+            fill="clear"
+            (click)="excluirSolicitacaoAdmin(solicitacao)"
+          >
+            Excluir
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

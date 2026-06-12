@@ -1,0 +1,150 @@
+.pets-page {
+  --background: #f4f8f8;
+}
+
+.toolbar-text-button {
+  --padding-start: 8px;
+  --padding-end: 10px;
+  font-weight: 700;
+}
+
+.painel-home {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 26px rgba(28, 50, 56, 0.08);
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.painel-home h1 {
+  color: #18343b;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 4px 0 8px;
+}
+
+.painel-home p {
+  color: #667982;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.painel-home .usuario-logado {
+  color: #0d6b78;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.atalhos-home {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.atalhos-home ion-button {
+  margin: 0;
+}
+
+.aviso-card {
+  border-left: 4px solid #0d6b78;
+  border-radius: 8px;
+  box-shadow: 0 8px 26px rgba(28, 50, 56, 0.08);
+  margin: 0 0 14px;
+}
+
+.aviso-card p {
+  color: #667982;
+  line-height: 1.4;
+  margin: 6px 0 12px;
+}
+
+.aviso-card ion-button {
+  margin: 0;
+}
+
+ion-searchbar {
+  --background: #ffffff;
+  --border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 0;
+}
+
+.form-card {
+  border-radius: 8px;
+  box-shadow: 0 8px 26px rgba(28, 50, 56, 0.08);
+  margin: 14px 0;
+}
+
+.form-card ion-item {
+  --background: #f5f9f9;
+  --border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.form-actions {
+  margin-top: 12px;
+}
+
+.pet-sliding {
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.pet-item {
+  --background: #ffffff;
+  --border-radius: 8px;
+  --inner-padding-end: 12px;
+  align-items: flex-start;
+  box-shadow: 0 8px 26px rgba(28, 50, 56, 0.08);
+}
+
+.pet-miniatura {
+  --border-radius: 8px;
+  height: 78px;
+  width: 78px;
+}
+
+.pet-miniatura img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.pet-conteudo h3 {
+  color: #18343b;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 3px 0 5px;
+}
+
+.pet-conteudo p {
+  color: #667982;
+  font-size: 0.88rem;
+  margin: 2px 0;
+}
+
+.pet-conteudo .especie {
+  color: #0d6b78;
+  font-weight: 700;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.pet-actions ion-button {
+  margin: 0;
+}

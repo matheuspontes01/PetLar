@@ -1,0 +1,190 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>PetLar Mobile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="toolbar-text-button" (click)="sair()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Sair
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="pets-page">
+  <ion-refresher slot="fixed" (ionRefresh)="atualizarLista($event)">
+    <ion-refresher-content pullingIcon="arrow-down" pullingText="Puxe para atualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="pagina-conteudo">
+    <section class="painel-home">
+      <p class="usuario-logado">{{ usuario.nome || usuario.email }} · {{ usuario.nome_tipo_usuario }}</p>
+      <h1>{{ tituloPainel() }}</h1>
+      <p>{{ descricaoPainel() }}</p>
+
+      <div class="atalhos-home">
+        <ion-button size="small" color="primary">
+          <ion-icon slot="start" name="paw-outline"></ion-icon>
+          Lista de pets
+        </ion-button>
+        <ion-button size="small" fill="outline" (click)="abrirSolicitacoes()">
+          <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+          Solicitações
+        </ion-button>
+        <ion-button *ngIf="ehAdmin()" size="small" fill="outline" (click)="abrirUsuarios()">
+          <ion-icon slot="start" name="people-outline"></ion-icon>
+          Usuários
+        </ion-button>
+      </div>
+
+    </section>
+
+    <ion-card *ngIf="ehAdmin() && ongsPendentesCount > 0" class="aviso-card">
+      <ion-card-content>
+        <strong>{{ ongsPendentesCount }} ONG(s) aguardando aprovação</strong>
+        <p>Verifique os dados enviados antes de liberar o cadastro de pets.</p>
+        <ion-button size="small" fill="outline" (click)="abrirUsuarios()">
+          <ion-icon slot="start" name="people-outline"></ion-icon>
+          Ver usuários
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="usuario.tipo_usuario === 'ONG' && solicitacoesPendentesCount > 0" class="aviso-card">
+      <ion-card-content>
+        <strong>{{ solicitacoesPendentesCount }} solicitação(ões) pendente(s)</strong>
+        <p>Existem pedidos de adoção feitos para seus pets.</p>
+        <ion-button size="small" fill="outline" (click)="abrirSolicitacoes()">
+          <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+          Ver solicitações
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <section class="cabecalho-lista">
+      <h2>{{ podeGerenciarPets() ? 'Meus pets cadastrados' : 'Disponiveis para adocao' }}</h2>
+      <p *ngIf="!carregandoLista">
+        {{ podeGerenciarPets() ? 'Gerencie os pets da ONG pelo aplicativo.' : 'Veja os pets cadastrados no sistema web.' }}
+      </p>
+    </section>
+
+    <ion-button *ngIf="podeGerenciarPets() && !mostrarFormulario" expand="block" color="secondary" (click)="novoPet()">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Novo pet
+    </ion-button>
+
+    <ion-card *ngIf="podeGerenciarPets() && mostrarFormulario" class="form-card">
+      <ion-card-header>
+        <ion-card-title>{{ petFormulario.id ? 'Editar pet' : 'Novo pet' }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-input label="Nome" labelPlacement="stacked" [(ngModel)]="petFormulario.nome"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-input label="Especie" labelPlacement="stacked" [(ngModel)]="petFormulario.especie"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-input label="Raca" labelPlacement="stacked" [(ngModel)]="petFormulario.raca"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-input label="Idade em meses" labelPlacement="stacked" type="number" [(ngModel)]="petFormulario.idade"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-select label="Sexo" labelPlacement="stacked" [(ngModel)]="petFormulario.sexo">
+            <ion-select-option value="1">Macho</ion-select-option>
+            <ion-select-option value="2">Femea</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-select label="Porte" labelPlacement="stacked" [(ngModel)]="petFormulario.porte">
+            <ion-select-option value="1">Pequeno</ion-select-option>
+            <ion-select-option value="2">Medio</ion-select-option>
+            <ion-select-option value="3">Grande</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-select label="Status" labelPlacement="stacked" [(ngModel)]="petFormulario.status">
+            <ion-select-option value="1">Disponivel</ion-select-option>
+            <ion-select-option value="2">Adotado</ion-select-option>
+            <ion-select-option value="3">Em processo</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-textarea label="Descricao" labelPlacement="stacked" rows="4" [(ngModel)]="petFormulario.descricao"></ion-textarea>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-checkbox slot="start" [(ngModel)]="petFormulario.vacinado"></ion-checkbox>
+          <ion-label>Vacinado</ion-label>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-checkbox slot="start" [(ngModel)]="petFormulario.castrado"></ion-checkbox>
+          <ion-label>Castrado</ion-label>
+        </ion-item>
+
+        <div class="form-actions">
+          <ion-button expand="block" (click)="salvarPet()">Salvar</ion-button>
+          <ion-button expand="block" fill="clear" (click)="cancelarFormulario()">Cancelar</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-searchbar
+      [(ngModel)]="pesquisa"
+      placeholder="Buscar pet"
+      debounce="500"
+      (ionChange)="consultarPetsSistemaWeb()"
+    ></ion-searchbar>
+
+    <div *ngIf="carregandoLista" class="estado-vazio">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Carregando pets...</p>
+    </div>
+
+    <div *ngIf="!carregandoLista && pets.length === 0" class="estado-vazio">
+      <ion-icon name="paw-outline"></ion-icon>
+      <h3>Nenhum pet encontrado</h3>
+      <p>Quando houver pets disponiveis, eles aparecerao aqui.</p>
+    </div>
+
+    <ion-item-sliding class="pet-sliding" *ngFor="let pet of pets">
+      <ion-item class="pet-item" lines="none">
+        <ion-thumbnail slot="start" class="pet-miniatura">
+          <img [src]="obterFoto(pet.fotos)" [alt]="pet.nome" />
+        </ion-thumbnail>
+
+        <ion-label class="pet-conteudo">
+          <p class="especie">{{ pet.especie }} - {{ pet.raca }}</p>
+          <h3>{{ pet.nome }}</h3>
+          <p>{{ pet.idade_texto }} · {{ pet.nome_porte }} · {{ pet.nome_sexo }}</p>
+          <p><strong>Responsavel:</strong> {{ pet.nome_responsavel || 'Nao informado' }}</p>
+          <div class="badges">
+            <ion-badge color="success" *ngIf="pet.vacinado">Vacinado</ion-badge>
+            <ion-badge color="tertiary" *ngIf="pet.castrado">Castrado</ion-badge>
+            <ion-badge color="warning" *ngIf="podeGerenciarPets()">{{ pet.nome_status }}</ion-badge>
+          </div>
+
+          <div class="pet-actions">
+            <ion-button *ngIf="ehAdotante()" size="small" (click)="solicitarAdocao(pet)">
+              Solicitar
+            </ion-button>
+            <ion-button *ngIf="podeGerenciarPets()" size="small" fill="outline" (click)="editarPet(pet)">
+              Editar
+            </ion-button>
+            <ion-button *ngIf="podeGerenciarPets()" size="small" color="danger" fill="outline" (click)="excluirPet(pet)">
+              Excluir
+            </ion-button>
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-item-sliding>
+  </div>
+</ion-content>

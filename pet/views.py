@@ -5,18 +5,17 @@ from django.http import FileResponse, Http404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from pet.forms import FormularioPet
 from pet.models import Pet
-from pet.serializers import SerializadorPet
-from PetLar.mixins import PetManagerRequiredMixin
+from pet.serializers import SerializadorGerenciarPet, SerializadorPet
+from PetLar.mixins import PerfilUsuarioMixin, PetManagerRequiredMixin, get_custom_user_for_request
 from user.consts import TIPO_ONG
-from user.utils import get_custom_user_for_request
 
 # Create your views here.
-class HomePets(LoginRequiredMixin, ListView):
+class HomePets(PerfilUsuarioMixin, LoginRequiredMixin, ListView):
     # view para listar pets disponíveis para adoção
     model = Pet
     template_name = 'pet/home_pets.html'
@@ -46,7 +45,7 @@ class ListarPets(PetManagerRequiredMixin, ListView):
         return queryset
 
 
-class DetalhePet(LoginRequiredMixin, DetailView):
+class DetalhePet(PerfilUsuarioMixin, LoginRequiredMixin, DetailView):
     # view para exibir os detalhes do pet
     model = Pet
     template_name = 'pet/detalhe_pet.html'
@@ -144,3 +143,59 @@ class APIListarPets(ListAPIView):
         if pesquisa is not None:
             queryset = queryset.filter(nome__icontains=pesquisa)
         return queryset
+
+
+class APIGerenciarPets(ListCreateAPIView):
+    # view para listar e criar pets por meio de API REST
+    serializer_class = SerializadorGerenciarPet
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pesquisa = self.request.GET.get('pesquisa')
+        custom_user = get_custom_user_for_request(self.request)
+        queryset = Pet.objects.select_related('responsavel').order_by('-data_cadastro')
+
+        if self.request.user.is_superuser:
+            pass
+        elif custom_user and custom_user.tipo_usuario == TIPO_ONG and custom_user.ong_aprovada:
+            queryset = queryset.filter(responsavel=custom_user)
+        else:
+            return queryset.none()
+
+        if pesquisa is not None:
+            queryset = queryset.filter(nome__icontains=pesquisa)
+        return queryset
+
+    def perform_create(self, serializer):
+        custom_user = get_custom_user_for_request(self.request)
+        if custom_user and custom_user.tipo_usuario == TIPO_ONG:
+            serializer.save(responsavel=custom_user)
+        else:
+            serializer.save()
+
+
+class APIEditarPet(RetrieveUpdateDestroyAPIView):
+    # view para editar e deletar pets por meio de API REST
+    serializer_class = SerializadorGerenciarPet
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        custom_user = get_custom_user_for_request(self.request)
+        queryset = Pet.objects.select_related('responsavel')
+
+        if self.request.user.is_superuser:
+            return queryset
+
+        if custom_user and custom_user.tipo_usuario == TIPO_ONG and custom_user.ong_aprovada:
+            return queryset.filter(responsavel=custom_user)
+
+        return queryset.none()
+
+    def perform_update(self, serializer):
+        custom_user = get_custom_user_for_request(self.request)
+        if custom_user and custom_user.tipo_usuario == TIPO_ONG:
+            serializer.save(responsavel=custom_user)
+        else:
+            serializer.save()

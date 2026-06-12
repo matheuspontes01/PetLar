@@ -1,0 +1,167 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>PetLar Mobile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="toolbar-text-button" (click)="sair()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Sair
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="usuarios-page">
+  <ion-refresher slot="fixed" (ionRefresh)="consultarUsuariosSistemaWeb()">
+    <ion-refresher-content pullingIcon="arrow-down" pullingText="Puxe para atualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="pagina-conteudo">
+    <section class="painel-home">
+      <p class="usuario-logado">{{ usuario.nome || usuario.email }} · Administrador</p>
+      <h1>Lista de usuários</h1>
+      <p>Cadastre, edite e remova adotantes e ONGs do PetLar.</p>
+
+      <div class="atalhos-home">
+        <ion-button size="small" fill="outline" (click)="abrirPets()">
+          <ion-icon slot="start" name="paw-outline"></ion-icon>
+          Pets
+        </ion-button>
+        <ion-button size="small" fill="outline" (click)="abrirSolicitacoes()">
+          <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+          Solicitações
+        </ion-button>
+        <ion-button size="small" color="primary">
+          <ion-icon slot="start" name="people-outline"></ion-icon>
+          Usuários
+        </ion-button>
+      </div>
+    </section>
+
+    <section class="cabecalho-lista">
+      <h2>Gerenciamento</h2>
+      <p *ngIf="!carregandoLista">Controle os usuários cadastrados no sistema web.</p>
+    </section>
+
+    <ion-card *ngIf="ongsPendentes.length > 0" class="aviso-ongs">
+      <ion-card-content>
+        <strong>{{ ongsPendentes.length }} ONG(s) aguardando aprovação</strong>
+        <p>Revise os dados da ONG e aprove somente cadastros válidos.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button *ngIf="!mostrarFormulario" expand="block" color="secondary" (click)="novoUsuario()">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Novo usuário
+    </ion-button>
+
+    <ion-card *ngIf="mostrarFormulario" class="form-card">
+      <ion-card-header>
+        <ion-card-title>{{ usuarioFormulario.id ? 'Editar usuário' : 'Novo usuário' }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-input label="Nome" labelPlacement="stacked" [(ngModel)]="usuarioFormulario.nome"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-input label="E-mail" labelPlacement="stacked" type="email" [(ngModel)]="usuarioFormulario.email"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-input label="Senha" labelPlacement="stacked" type="password" [(ngModel)]="usuarioFormulario.senha"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-input label="Telefone" labelPlacement="stacked" [(ngModel)]="usuarioFormulario.telefone"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-select label="Tipo" labelPlacement="stacked" [(ngModel)]="usuarioFormulario.tipo_usuario">
+            <ion-select-option value="ADOTANTE">Adotante</ion-select-option>
+            <ion-select-option value="ONG">ONG</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <div *ngIf="usuarioFormulario.tipo_usuario === 'ONG'">
+          <ion-item lines="none">
+            <ion-input label="Razão social" labelPlacement="stacked" [(ngModel)]="usuarioFormulario.razao_social_ong"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none">
+            <ion-input label="CNPJ" labelPlacement="stacked" [(ngModel)]="usuarioFormulario.cnpj_ong"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none">
+            <ion-select label="Verificação da ONG" labelPlacement="stacked" [(ngModel)]="usuarioFormulario.status_verificacao_ong">
+              <ion-select-option value="PENDENTE">Pendente</ion-select-option>
+              <ion-select-option value="APROVADA">Aprovada</ion-select-option>
+              <ion-select-option value="REJEITADA">Rejeitada</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+
+        <div class="form-actions">
+          <ion-button expand="block" (click)="salvarUsuario()">Salvar</ion-button>
+          <ion-button expand="block" fill="clear" (click)="cancelarFormulario()">Cancelar</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-searchbar
+      [(ngModel)]="pesquisa"
+      placeholder="Buscar usuário"
+      debounce="500"
+      (ionChange)="consultarUsuariosSistemaWeb()"
+    ></ion-searchbar>
+
+    <div *ngIf="carregandoLista" class="estado-vazio">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Carregando usuários...</p>
+    </div>
+
+    <div *ngIf="!carregandoLista && usuarios.length === 0" class="estado-vazio">
+      <ion-icon name="people-outline"></ion-icon>
+      <h3>Nenhum usuário encontrado</h3>
+      <p>Quando houver usuários cadastrados, eles aparecerão aqui.</p>
+    </div>
+
+    <ion-card class="usuario-card" *ngFor="let item of usuarios">
+      <ion-card-header>
+        <ion-card-subtitle>{{ item.nome_tipo_usuario }}</ion-card-subtitle>
+        <ion-card-title>{{ item.nome }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <p><strong>E-mail:</strong> {{ item.email }}</p>
+        <p *ngIf="item.telefone"><strong>Telefone:</strong> {{ item.telefone }}</p>
+        <p *ngIf="item.tipo_usuario === 'ONG'"><strong>ONG:</strong> {{ item.nome_status_verificacao_ong }}</p>
+        <p *ngIf="item.tipo_usuario === 'ONG' && item.razao_social_ong"><strong>Razão social:</strong> {{ item.razao_social_ong }}</p>
+        <p *ngIf="item.tipo_usuario === 'ONG' && item.cnpj_ong"><strong>CNPJ:</strong> {{ item.cnpj_ong }}</p>
+
+        <div class="usuario-actions">
+          <ion-button
+            *ngIf="item.tipo_usuario === 'ONG' && item.status_verificacao_ong === 'PENDENTE'"
+            size="small"
+            color="success"
+            fill="outline"
+            (click)="avaliarOng(item, 'APROVADA')"
+          >
+            Aprovar
+          </ion-button>
+          <ion-button
+            *ngIf="item.tipo_usuario === 'ONG' && item.status_verificacao_ong === 'PENDENTE'"
+            size="small"
+            color="warning"
+            fill="outline"
+            (click)="avaliarOng(item, 'REJEITADA')"
+          >
+            Rejeitar
+          </ion-button>
+          <ion-button size="small" fill="outline" (click)="editarUsuario(item)">Editar</ion-button>
+          <ion-button size="small" color="danger" fill="outline" (click)="excluirUsuario(item)">Excluir</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

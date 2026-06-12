@@ -58,6 +58,22 @@
 	{% endif %}
 
 	<main class="container py-4 py-md-5">
+		{% if is_admin_profile and ongs_pendentes_count %}
+			<div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
+				<span>
+					Existem {{ ongs_pendentes_count }} cadastro(s) de ONG aguardando aprovação.
+				</span>
+				<a href="{% url 'listar_ongs_pendentes' %}" class="btn btn-sm btn-outline-primary">Ver ONGs</a>
+			</div>
+		{% endif %}
+		{% if perfil_usuario.tipo_usuario == 'ONG' and solicitacoes_pendentes_ong_count %}
+			<div class="alert alert-info d-flex justify-content-between align-items-center" role="alert">
+				<span>
+					Existem {{ solicitacoes_pendentes_ong_count }} solicitação(ões) pendente(s) para seus pets.
+				</span>
+				<a href="{% url 'listar_solicitacoes' %}" class="btn btn-sm btn-outline-primary">Ver solicitações</a>
+			</div>
+		{% endif %}
 		{% if perfil_usuario.tipo_usuario == 'ONG' and perfil_usuario.status_verificacao_ong == 'PENDENTE' %}
 			<div class="alert alert-warning" role="alert">
 				Seu cadastro de ONG está em análise. Assim que for aprovado, a opção de cadastrar pets ficará disponível.

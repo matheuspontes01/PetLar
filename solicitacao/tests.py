@@ -117,6 +117,14 @@ class TestesViewSolicitacao(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context.get('solicitacoes')), 1)
 
+    def test_listar_solicitacoes_ong_exibe_total_pendente_no_contexto(self):
+        SolicitacaoDeAdocao.objects.create(adotante=self.adotante, pet=self.pet, mensagem='Tenho interesse.')
+        self.client.force_login(self.auth_ong)
+        response = self.client.get(reverse('listar_solicitacoes'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context.get('solicitacoes_pendentes_ong_count'), 1)
+
     def test_aprovar_solicitacao(self):
         solicitacao = SolicitacaoDeAdocao.objects.create(adotante=self.adotante, pet=self.pet, mensagem='Tenho interesse.')
         self.client.force_login(self.auth_ong)
@@ -271,3 +279,84 @@ class TestesAPIListarSolicitacoes(TestCase):
         response = self.client.get(self.url, HTTP_AUTHORIZATION=f'Token {self.token.key}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
+
+
+class TestesAPIAcoesSolicitacao(TestCase):
+    # Classe de testes para ações da API de solicitações
+
+    def setUp(self):
+        self.adotante = User.objects.create(
+            nome='Ana',
+            email='ana@petlar.com',
+            senha='12345',
+            telefone='63999999999',
+            tipo_usuario=TIPO_ADOTANTE,
+        )
+        self.auth_adotante = AuthUser.objects.create_user(username='ana@petlar.com', email='ana@petlar.com', password='12345')
+        self.token_adotante = Token.objects.create(user=self.auth_adotante)
+        self.ong = User.objects.create(
+            nome='ONG PetLar',
+            email='ong@petlar.com',
+            senha='12345',
+            telefone='63999999999',
+            tipo_usuario=TIPO_ONG,
+            status_verificacao_ong=STATUS_ONG_APROVADA,
+        )
+        self.auth_ong = AuthUser.objects.create_user(username='ong@petlar.com', email='ong@petlar.com', password='12345')
+        self.token_ong = Token.objects.create(user=self.auth_ong)
+        self.pet = Pet.objects.create(
+            nome='Thor',
+            especie='Cão',
+            fotos=imagem_teste(),
+            raca='Vira-lata',
+            idade=12,
+            sexo='1',
+            porte='1',
+            descricao='Pet dócil',
+            status='1',
+            responsavel=self.ong,
+        )
+
+    def test_adotante_cria_solicitacao(self):
+        url = reverse('api_criar_solicitacao', kwargs={'pet_pk': self.pet.pk})
+        response = self.client.post(
+            url,
+            {'mensagem': 'Tenho interesse.'},
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {self.token_adotante.key}',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(SolicitacaoDeAdocao.objects.count(), 1)
+
+    def test_adotante_cancela_solicitacao_pendente(self):
+        solicitacao = SolicitacaoDeAdocao.objects.create(
+            adotante=self.adotante,
+            pet=self.pet,
+            mensagem='Tenho interesse.',
+        )
+        url = reverse('api_editar_solicitacao', kwargs={'pk': solicitacao.pk})
+        response = self.client.delete(url, HTTP_AUTHORIZATION=f'Token {self.token_adotante.key}')
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(SolicitacaoDeAdocao.objects.count(), 0)
+
+    def test_ong_aprova_solicitacao(self):
+        solicitacao = SolicitacaoDeAdocao.objects.create(
+            adotante=self.adotante,
+            pet=self.pet,
+            mensagem='Tenho interesse.',
+        )
+        url = reverse('api_editar_solicitacao', kwargs={'pk': solicitacao.pk})
+        response = self.client.patch(
+            url,
+            {'status': 'APROVADA'},
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {self.token_ong.key}',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        solicitacao.refresh_from_db()
+        self.pet.refresh_from_db()
+        self.assertEqual(solicitacao.status, 'APROVADA')
+        self.assertEqual(self.pet.status, '3')

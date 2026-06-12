@@ -1,0 +1,7 @@
+{
+  "name": "petlar-mobile",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

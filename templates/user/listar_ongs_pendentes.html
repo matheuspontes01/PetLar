@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}ONGs pendentes | PetLar{% endblock %}
+
+{% block content %}
+<section class="page-heading d-md-flex align-items-md-center justify-content-between mb-4">
+	<div>
+		<h1 class="h3 font-weight-bold mb-1">ONGs pendentes</h1>
+		<p class="text-muted mb-0">Revise os cadastros de ONGs antes de liberar o cadastro de pets.</p>
+	</div>
+	<a href="{% url 'listar_usuarios' %}" class="btn btn-outline-secondary mt-3 mt-md-0">Todos os usuários</a>
+</section>
+
+<section class="petlar-card p-0 overflow-hidden">
+	<div class="table-responsive">
+		<table class="table table-hover align-middle mb-0">
+			<thead class="table-light">
+				<tr>
+					<th>Nome</th>
+					<th>Razão social</th>
+					<th>CNPJ</th>
+					<th>Telefone</th>
+					<th>Comprovante</th>
+					<th class="text-end">Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for usuario in usuarios %}
+				<tr>
+					<td>
+						<span class="font-weight-semibold">{{ usuario.nome }}</span><br>
+						<span class="text-muted small">{{ usuario.email }}</span>
+					</td>
+					<td>{{ usuario.razao_social_ong|default:'-' }}</td>
+					<td>{{ usuario.cnpj_ong|default:'-' }}</td>
+					<td>{{ usuario.telefone|default:'-' }}</td>
+					<td>
+						{% if usuario.comprovante_ong %}
+							<a href="{{ usuario.comprovante_ong.url }}" target="_blank" rel="noopener">Abrir documento</a>
+						{% else %}
+							<span class="text-muted">Não enviado</span>
+						{% endif %}
+					</td>
+					<td class="text-end">
+						<a href="{% url 'editar_usuario' usuario.pk %}" class="btn btn-sm btn-outline-primary">Avaliar</a>
+					</td>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="6" class="text-center py-4 text-muted">Nenhuma ONG pendente no momento.</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</section>
+{% endblock %}

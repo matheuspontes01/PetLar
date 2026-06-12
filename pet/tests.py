@@ -326,3 +326,63 @@ class TestesAPIListarPets(TestCase):
         response = self.client.get(self.url, HTTP_AUTHORIZATION=f'Token {self.token.key}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
+
+
+class TestesAPIGerenciarPets(TestCase):
+    # Classe de testes para a API de gerenciamento de pets
+
+    def setUp(self):
+        self.ong = User.objects.create(
+            nome='ONG PetLar',
+            email='ong@petlar.com',
+            senha='12345',
+            telefone='63999999999',
+            tipo_usuario=TIPO_ONG,
+            status_verificacao_ong=STATUS_ONG_APROVADA,
+        )
+        self.auth_ong = AuthUser.objects.create_user(username='ong@petlar.com', email='ong@petlar.com', password='12345')
+        self.token = Token.objects.create(user=self.auth_ong)
+        self.url = reverse('api_gerenciar_pets')
+
+    def test_post_cria_pet_para_ong_logada(self):
+        dados = {
+            'nome': 'Mel',
+            'especie': 'Cão',
+            'raca': 'Vira-lata',
+            'idade': 8,
+            'sexo': '2',
+            'porte': '1',
+            'descricao': 'Pet carinhosa',
+            'status': '1',
+            'vacinado': True,
+            'castrado': False,
+        }
+        response = self.client.post(
+            self.url,
+            dados,
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Token {self.token.key}',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Pet.objects.count(), 1)
+        self.assertEqual(Pet.objects.first().responsavel, self.ong)
+
+    def test_delete_remove_pet_da_ong(self):
+        pet = Pet.objects.create(
+            nome='Thor',
+            especie='Cão',
+            fotos=imagem_teste(),
+            raca='Vira-lata',
+            idade=12,
+            sexo='1',
+            porte='1',
+            descricao='Pet dócil',
+            status='1',
+            responsavel=self.ong,
+        )
+        url = reverse('api_editar_pet', kwargs={'pk': pet.pk})
+        response = self.client.delete(url, HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Pet.objects.count(), 0)

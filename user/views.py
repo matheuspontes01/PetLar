@@ -4,13 +4,13 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.contrib.auth import login
 from django.contrib.auth.models import User as AuthUser
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from user.consts import *
 from user.models import User
 from user.forms import FormularioUser
-from user.serializers import SerializadorUser
+from user.serializers import SerializadorGerenciarUser, SerializadorUser
 from PetLar.mixins import AdminRequiredMixin
 
 # Create your views here.
@@ -27,6 +27,19 @@ class ListarUsuarios(AdminRequiredMixin, ListView):
             queryset = queryset.filter(nome__icontains=pesquisa)
         return queryset
     
+
+class ListarOngsPendentes(AdminRequiredMixin, ListView):
+    # view para listar ONGs aguardando aprovação
+    model = User
+    template_name = 'user/listar_ongs_pendentes.html'
+    context_object_name = 'usuarios'
+
+    def get_queryset(self, **kwargs):
+        return User.objects.filter(
+            tipo_usuario=TIPO_ONG,
+            status_verificacao_ong=STATUS_ONG_PENDENTE,
+        ).order_by('nome')
+
 
 class CriarUsuario(AdminRequiredMixin, CreateView):
     # view para criar um novo usuário
@@ -91,6 +104,8 @@ class EditarUsuario(AdminRequiredMixin, UpdateView):
         obj = self.get_object()
         old_email = obj.email
         senha = form.cleaned_data.get('senha')
+        if not senha:
+            form.instance.senha = obj.senha
         response = super().form_valid(form)
         new_email = self.object.email
         auth_user = AuthUser.objects.filter(username=old_email).first()
@@ -101,7 +116,7 @@ class EditarUsuario(AdminRequiredMixin, UpdateView):
                 auth_user.set_password(senha)
             auth_user.save()
         else:
-            AuthUser.objects.create_user(username=new_email, email=new_email, password=senha)
+            AuthUser.objects.create_user(username=new_email, email=new_email, password=senha or self.object.senha)
         return response
 
 
@@ -126,3 +141,67 @@ class APIListarUsuarios(ListAPIView):
         if self.request.user.is_superuser:
             return User.objects.all()
         return User.objects.none()
+
+
+class APIGerenciarUsuarios(ListCreateAPIView):
+    # view para listar e criar usuários por meio de API REST
+    serializer_class = SerializadorGerenciarUser
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pesquisa = self.request.GET.get('pesquisa')
+        queryset = User.objects.all().order_by('nome')
+
+        if not self.request.user.is_superuser:
+            return queryset.none()
+
+        if pesquisa is not None:
+            queryset = queryset.filter(nome__icontains=pesquisa)
+        return queryset
+
+    def perform_create(self, serializer):
+        usuario = serializer.save()
+        senha = serializer.validated_data.get('senha') or usuario.senha
+        auth_user, created = AuthUser.objects.get_or_create(
+            username=usuario.email,
+            defaults={'email': usuario.email},
+        )
+        auth_user.email = usuario.email
+        auth_user.set_password(senha)
+        auth_user.save()
+
+
+class APIEditarUsuario(RetrieveUpdateDestroyAPIView):
+    # view para editar e deletar usuários por meio de API REST
+    serializer_class = SerializadorGerenciarUser
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+
+        if self.request.user.is_superuser:
+            return queryset
+
+        return queryset.none()
+
+    def perform_update(self, serializer):
+        usuario_antigo = self.get_object()
+        email_antigo = usuario_antigo.email
+        usuario = serializer.save()
+        senha = serializer.validated_data.get('senha')
+
+        auth_user = AuthUser.objects.filter(username=email_antigo).first()
+        if auth_user:
+            auth_user.username = usuario.email
+            auth_user.email = usuario.email
+            if senha:
+                auth_user.set_password(senha)
+            auth_user.save()
+        else:
+            AuthUser.objects.create_user(username=usuario.email, email=usuario.email, password=senha or usuario.senha)
+
+    def perform_destroy(self, instance):
+        AuthUser.objects.filter(username=instance.email).delete()
+        instance.delete()

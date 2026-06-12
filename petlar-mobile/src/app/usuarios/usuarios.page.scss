@@ -1,0 +1,104 @@
+.usuarios-page {
+  --background: #f4f8f8;
+}
+
+.toolbar-text-button {
+  --padding-start: 8px;
+  --padding-end: 10px;
+  font-weight: 700;
+}
+
+.painel-home,
+.form-card,
+.usuario-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 26px rgba(28, 50, 56, 0.08);
+}
+
+.painel-home {
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.painel-home h1 {
+  color: #18343b;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 4px 0 8px;
+}
+
+.painel-home p {
+  color: #667982;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.painel-home .usuario-logado {
+  color: #0d6b78;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.atalhos-home,
+.usuario-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.atalhos-home ion-button,
+.usuario-actions ion-button {
+  margin: 0;
+}
+
+.form-card {
+  margin: 14px 0;
+}
+
+.aviso-ongs {
+  border-left: 4px solid #0d6b78;
+  margin: 0 0 14px;
+}
+
+.aviso-ongs p {
+  margin: 6px 0 0;
+}
+
+.form-card ion-item {
+  --background: #f5f9f9;
+  --border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.form-actions {
+  margin-top: 12px;
+}
+
+ion-searchbar {
+  --background: #ffffff;
+  --border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 0;
+}
+
+.usuario-card {
+  margin: 0 0 12px;
+}
+
+ion-card-subtitle {
+  color: #0d6b78;
+  font-weight: 700;
+}
+
+ion-card-title {
+  color: #18343b;
+  font-size: 1.18rem;
+}
+
+ion-card-content p {
+  color: #667982;
+  line-height: 1.45;
+}
